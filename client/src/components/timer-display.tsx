@@ -32,16 +32,13 @@ export function TimerDisplay({ state, totalTime }: TimerDisplayProps) {
             textShadow: '0 0 20px hsla(var(--primary), 0.5)'
           }}
           key={`minutes-${minutes}`}
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          {...currentTheme.animation.minutes}
         >
           {String(minutes).padStart(2, '0')}
         </motion.h1>
         <motion.span 
           className="text-8xl md:text-9xl font-bold font-mono"
-          animate={{ opacity: [1, 0.5, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
+          {...currentTheme.animation.separator}
         >
           :
         </motion.span>
@@ -52,9 +49,7 @@ export function TimerDisplay({ state, totalTime }: TimerDisplayProps) {
             textShadow: '0 0 20px hsla(var(--secondary), 0.5)'
           }}
           key={`seconds-${seconds}`}
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          {...currentTheme.animation.seconds}
         >
           {String(seconds).padStart(2, '0')}
         </motion.h1>
