@@ -8,6 +8,8 @@ import { audioPlayer } from "@/lib/audio";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { ThemeSelector } from "@/components/theme-selector";
+import { useTheme } from "@/lib/theme";
 
 const defaultSettings: Settings = {
   workMinutes: 25,
@@ -48,6 +50,7 @@ export default function Home() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [zenMode, setZenMode] = useState(false);
+  const { currentTheme } = useTheme();
 
   // Save state and settings to localStorage
   useEffect(() => {
@@ -117,7 +120,7 @@ export default function Home() {
     <div className="relative min-h-screen w-full bg-background overflow-hidden">
       {/* Animated gradient background */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10 animate-gradient-slow pointer-events-none"
+        className={`absolute inset-0 bg-gradient-to-br ${currentTheme.gradientStyle} animate-gradient-slow pointer-events-none`}
         style={{
           maskImage: 'radial-gradient(circle at center, transparent 0%, black 100%)',
           WebkitMaskImage: 'radial-gradient(circle at center, transparent 0%, black 100%)'
@@ -163,7 +166,7 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
-
+        <ThemeSelector />
         <Button
           variant="ghost"
           size="icon"
