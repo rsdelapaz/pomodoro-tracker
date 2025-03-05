@@ -5,6 +5,9 @@ import { TimerControls } from "@/components/timer-controls";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { StatsDisplay } from "@/components/stats-display";
 import { audioPlayer } from "@/lib/audio";
+import { Maximize2, Minimize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 
 const defaultSettings: Settings = {
   workMinutes: 25,
@@ -44,6 +47,7 @@ export default function Home() {
   });
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [zenMode, setZenMode] = useState(false);
 
   // Save state and settings to localStorage
   useEffect(() => {
@@ -61,7 +65,7 @@ export default function Home() {
           audioPlayer.playNotification();
           const newIsWorking = !prev.isWorking;
           const timeLeft = (newIsWorking ? settings.workMinutes : settings.breakMinutes) * 60;
-          
+
           return {
             ...prev,
             isWorking: newIsWorking,
@@ -110,28 +114,72 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center gap-8 p-4">
-      <TimerDisplay 
-        state={state}
-        totalTime={(state.isWorking ? settings.workMinutes : settings.breakMinutes) * 60}
+    <div className="relative min-h-screen w-full bg-background overflow-hidden">
+      {/* Animated gradient background */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10 animate-gradient-slow pointer-events-none"
+        style={{
+          maskImage: 'radial-gradient(circle at center, transparent 0%, black 100%)',
+          WebkitMaskImage: 'radial-gradient(circle at center, transparent 0%, black 100%)'
+        }}
       />
-      <TimerControls
-        isPaused={state.isPaused}
-        onPlayPause={handlePlayPause}
-        onReset={handleReset}
-        onOpenSettings={() => setSettingsOpen(true)}
-      />
-      <StatsDisplay
-        totalWorkSessions={state.totalWorkSessions}
-        totalWorkMinutes={Math.floor(state.totalWorkMinutes)}
-        totalBreakMinutes={Math.floor(state.totalBreakMinutes)}
-      />
-      <SettingsDialog
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        settings={settings}
-        onSave={handleSaveSettings}
-      />
+
+      <div className="relative min-h-screen w-full flex flex-col items-center justify-center gap-8 p-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key="timer"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col items-center gap-8"
+          >
+            <TimerDisplay 
+              state={state}
+              totalTime={(state.isWorking ? settings.workMinutes : settings.breakMinutes) * 60}
+            />
+            <TimerControls
+              isPaused={state.isPaused}
+              onPlayPause={handlePlayPause}
+              onReset={handleReset}
+              onOpenSettings={() => setSettingsOpen(true)}
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {!zenMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <StatsDisplay
+                totalWorkSessions={state.totalWorkSessions}
+                totalWorkMinutes={Math.floor(state.totalWorkMinutes)}
+                totalBreakMinutes={Math.floor(state.totalBreakMinutes)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed bottom-4 right-4"
+          onClick={() => setZenMode(!zenMode)}
+        >
+          {zenMode ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+        </Button>
+
+        <SettingsDialog
+          open={settingsOpen}
+          onOpenChange={setSettingsOpen}
+          settings={settings}
+          onSave={handleSaveSettings}
+        />
+      </div>
     </div>
   );
 }
