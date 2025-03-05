@@ -15,9 +15,7 @@
 
     --primary: 148 100% 63%;
     --primary-foreground: 222.2 47.4% 1.2%;
-
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 213 31% 91%;
+    --secondary: 180 100% 60%;
 
     --muted: 223 47% 11%;
     --muted-foreground: 215.4 16.3% 56.9%;
@@ -33,6 +31,7 @@
     --ring: 148 100% 63%;
 
     --radius: 0.75rem;
+    --progress-background: hsl(148, 100%, 63%);
   }
 }
 
@@ -48,4 +47,10 @@
 
 .animate-gradient-slow {
   background-size: 300% 300%;
+}
+
+/* Progress bar custom styling */
+.progress-bar {
+  background: var(--progress-background);
+  transition: background-color 0.3s ease;
 }
