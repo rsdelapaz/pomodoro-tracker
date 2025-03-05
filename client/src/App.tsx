@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeContext, themeColors } from "./lib/theme";
 
 function Router() {
@@ -18,6 +18,14 @@ function Router() {
 
 function App() {
   const [currentTheme, setCurrentTheme] = useState(themeColors[0]);
+
+  // Update CSS custom properties when theme changes
+  useEffect(() => {
+    const root = document.documentElement;
+    Object.entries(currentTheme.cssProperties).forEach(([property, value]) => {
+      root.style.setProperty(property, value);
+    });
+  }, [currentTheme]);
 
   return (
     <ThemeContext.Provider value={{ currentTheme, setTheme: setCurrentTheme }}>
