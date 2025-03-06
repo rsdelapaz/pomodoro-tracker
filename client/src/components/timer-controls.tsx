@@ -1,66 +1,126 @@
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Settings } from "lucide-react";
-import { useTheme } from "@/lib/theme";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Settings, 
+  HelpCircle, 
+  PlayCircle, 
+  PauseCircle, 
+  RotateCcw 
+} from "lucide-react";
 
 interface TimerControlsProps {
   isPaused: boolean;
-  onPlayPause: () => void;
+  onStart: () => void;
+  onPause: () => void;
   onReset: () => void;
-  onOpenSettings: () => void;
+  onSettingsClick: () => void;
+  onHelpClick: () => void;
 }
 
 export function TimerControls({
   isPaused,
-  onPlayPause,
+  onStart,
+  onPause,
   onReset,
-  onOpenSettings,
+  onSettingsClick,
+  onHelpClick
 }: TimerControlsProps) {
-  const { currentTheme } = useTheme();
+  const [startAnimation, setStartAnimation] = useState(false);
+
+  // Reset animation state when isPaused changes
+  useEffect(() => {
+    setStartAnimation(false);
+  }, [isPaused]);
+
+  const handlePrimaryAction = () => {
+    if (isPaused) {
+      setStartAnimation(true);
+      onStart();
+    } else {
+      onPause();
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex items-center gap-3"
-    >
-      <Button
-        onClick={onPlayPause}
-        size="lg"
-        variant={isPaused ? "default" : "secondary"}
-        className="h-12 px-6 text-lg font-medium transition-all duration-300"
-      >
-        {isPaused ? (
-          <>
-            <Play className="mr-2 h-5 w-5" /> Start
-          </>
-        ) : (
-          <>
-            <Pause className="mr-2 h-5 w-5" /> Pause
-          </>
-        )}
-      </Button>
+    <div className="flex items-center gap-4">
+      {/* Primary Button (Start/Pause) */}
+      <motion.div whileTap={{ scale: 0.95 }}>
+        <Button
+          onClick={handlePrimaryAction}
+          size="lg"
+          className="h-12 px-6 gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+          aria-label={isPaused ? "Start timer" : "Pause timer"}
+        >
+          <AnimatePresence mode="wait">
+            {isPaused ? (
+              <motion.div
+                key="play"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-2"
+              >
+                <PlayCircle className="h-5 w-5" />
+                <span>Start</span>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="pause"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-2"
+              >
+                <PauseCircle className="h-5 w-5" />
+                <span>Pause</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Button>
+      </motion.div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onReset}
-        className="rounded-full h-10 w-10 transition-all hover:bg-muted"
-        aria-label="Reset timer"
-      >
-        <RotateCcw className="h-5 w-5" />
-      </Button>
+      {/* Reset Button */}
+      <motion.div whileTap={{ scale: 0.95 }}>
+        <Button
+          onClick={onReset}
+          size="icon"
+          variant="ghost"
+          className="rounded-full h-10 w-10 bg-background hover:bg-muted/50"
+          aria-label="Reset timer"
+        >
+          <RotateCcw className="h-5 w-5 text-foreground/80" />
+        </Button>
+      </motion.div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onOpenSettings}
-        className="rounded-full h-10 w-10 transition-all hover:bg-muted"
-        aria-label="Open settings"
-      >
-        <Settings className="h-5 w-5" />
-      </Button>
-    </motion.div>
+      {/* Settings Button */}
+      <motion.div whileTap={{ scale: 0.95 }}>
+        <Button
+          onClick={onSettingsClick}
+          size="icon"
+          variant="ghost"
+          className="rounded-full h-10 w-10 bg-background hover:bg-muted/50"
+          aria-label="Open settings"
+        >
+          <Settings className="h-5 w-5 text-foreground/80" />
+        </Button>
+      </motion.div>
+
+      {/* Help Button */}
+      <motion.div whileTap={{ scale: 0.95 }}>
+        <Button
+          onClick={onHelpClick}
+          size="icon"
+          variant="ghost"
+          className="rounded-full h-10 w-10 bg-background hover:bg-muted/50"
+          aria-label="View help"
+        >
+          <HelpCircle className="h-5 w-5 text-foreground/80" />
+        </Button>
+      </motion.div>
+    </div>
   );
 }

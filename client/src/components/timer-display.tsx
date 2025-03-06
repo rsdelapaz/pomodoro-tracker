@@ -1,6 +1,7 @@
-import { type TimerState } from "@shared/schema";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "@/lib/theme";
+import { formatTime } from "@/lib/utils";
+import type { TimerState } from "@shared/schema";
 
 interface TimerDisplayProps {
   state: TimerState;
@@ -8,92 +9,77 @@ interface TimerDisplayProps {
 }
 
 export function TimerDisplay({ state, totalTime }: TimerDisplayProps) {
+  const { timeLeft } = state;
   const { currentTheme } = useTheme();
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
 
-  // Format time as mm:ss
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Calculate progress percentage
-  const progress = Math.max(0, Math.min(100, ((totalTime - state.timeLeft) / totalTime) * 100));
-
-  // Calculate the circumference of the progress circle
-  const radius = 110;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const progress = (totalTime - timeLeft) / totalTime;
+  const circumference = 2 * Math.PI * 110; // Circle radius is 110
+  const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <motion.div
-        key={state.timeLeft}
-        initial={{ scale: 0.95 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        className="relative w-64 h-64 flex items-center justify-center"
-      >
-        {/* Circular background */}
-        <div className="absolute w-full h-full rounded-full bg-card border border-border/30 shadow-inner" />
-
-        {/* Circular progress */}
-        <svg 
-          className="absolute w-full h-full -rotate-90" 
-          viewBox="0 0 240 240"
-        >
-          {/* Background circle */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="relative flex flex-col items-center justify-center"
+    >
+      {/* Circular Timer Background */}
+      <div className="relative h-64 w-64 flex items-center justify-center rounded-full border border-primary/20 shadow-lg">
+        {/* Progress Circle */}
+        <svg className="absolute -rotate-90 h-64 w-64">
           <circle
-            cx="120"
-            cy="120"
-            r={radius}
+            cx="128"
+            cy="128"
+            r="110"
             fill="none"
-            stroke="currentColor"
             strokeWidth="4"
-            className="text-muted/10"
+            className="stroke-primary/10"
           />
-
-          {/* Progress circle */}
           <circle
-            cx="120"
-            cy="120"
-            r={radius}
+            cx="128"
+            cy="128"
+            r="110"
             fill="none"
-            stroke="currentColor"
             strokeWidth="4"
-            strokeLinecap="round"
+            className="stroke-primary/50"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
-            className="text-primary transition-all duration-1000 ease-linear"
+            strokeLinecap="round"
           />
         </svg>
 
-        {/* Minutes and seconds markers */}
-        <div className="absolute w-full h-full">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div 
-              key={i}
-              className="absolute w-1 h-2 bg-muted-foreground/30"
-              style={{
-                top: '50%',
-                left: '50%',
-                transformOrigin: '0 0',
-                transform: `rotate(${i * 30}deg) translate(124px, 0px)`
-              }}
-            />
-          ))}
-        </div>
+        {/* Timer Text */}
+        <div className="z-10 flex items-center gap-1">
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={`minutes-${minutes}`}
+              className="text-6xl font-medium tabular-nums"
+              {...currentTheme.animation.minutes}
+            >
+              {formatTime(minutes)}
+            </motion.span>
+          </AnimatePresence>
 
-        {/* Timer display */}
-        <div className="z-10 flex flex-col items-center">
-          <span className="text-6xl font-semibold tabular-nums tracking-tight">
-            {formatTime(state.timeLeft)}
-          </span>
-          <span className="text-xs uppercase tracking-wider text-muted-foreground mt-2">
-            {state.isWorking ? 'Focus Time' : 'Break Time'}
-          </span>
+          <motion.span
+            className="text-6xl font-medium text-primary"
+            {...currentTheme.animation.separator}
+          >
+            :
+          </motion.span>
+
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={`seconds-${seconds}`}
+              className="text-6xl font-medium tabular-nums"
+              {...currentTheme.animation.seconds}
+            >
+              {formatTime(seconds)}
+            </motion.span>
+          </AnimatePresence>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 }

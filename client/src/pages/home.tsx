@@ -116,8 +116,12 @@ export default function Home() {
     audioPlayer.setVolume(settings.volume);
   }, [settings.volume]);
 
-  const handlePlayPause = () => {
-    setState(prev => ({ ...prev, isPaused: !prev.isPaused }));
+  const handleTimerStart = () => {
+    setState(prev => ({ ...prev, isPaused: false }));
+  };
+
+  const handleTimerPause = () => {
+    setState(prev => ({ ...prev, isPaused: true }));
   };
 
   const handleReset = () => {
@@ -196,10 +200,14 @@ export default function Home() {
               state={state}
               totalTime={(activeTab === 'pomodoro' ? settings.workMinutes : (activeTab === 'shortBreak' ? settings.breakMinutes : settings.longBreakMinutes)) * 60}
             />
-            <div className="flex gap-4"> {/*Simplified Controls*/}
-              <Button onClick={handlePlayPause} className={`${state.isPaused ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'}`}> {state.isPaused ? 'Start' : 'Pause'}</Button>
-              <Button onClick={handleReset} className="bg-gray-600 hover:bg-gray-700 text-white">Reset</Button> {/* Reverted reset button design */}
-            </div>
+            <TimerControls 
+              isPaused={state.isPaused}
+              onStart={handleTimerStart}
+              onPause={handleTimerPause}
+              onReset={handleReset}
+              onSettingsClick={() => setSettingsOpen(true)}
+              onHelpClick={() => setHelpOpen(true)}
+            />
           </motion.div>
         </AnimatePresence>
 

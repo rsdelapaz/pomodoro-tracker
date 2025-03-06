@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 export type AnimationStyle = {
   minutes: any;
@@ -159,15 +159,43 @@ export const themeColors: ThemeColor[] = [
 
 type ThemeContextType = {
   currentTheme: ThemeColor;
-  setTheme: (theme: ThemeColor) => void;
+  setTheme: (theme: string) => void;
+  themeVariants: ThemeColor[];
 };
 
 export const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider");
-  }
-  return context;
+  const [currentTheme, setCurrentTheme] = useState<ThemeColor>(themeColors[0]);
+  const [themeVariants, setThemeVariants] = useState(themeColors);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('pomodoro-theme');
+    if (savedTheme) {
+      const parsed = themeColors.find(t => t.name === savedTheme);
+      if (parsed) {
+        setCurrentTheme(parsed);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('pomodoro-theme', currentTheme.name);
+
+    // Apply CSS properties for the selected theme
+    if (currentTheme.cssProperties) {
+      Object.entries(currentTheme.cssProperties).forEach(([property, value]) => {
+        document.documentElement.style.setProperty(property, value);
+      });
+    }
+  }, [currentTheme]);
+
+  const setTheme = (themeName: string) => {
+    const theme = themeColors.find(t => t.name === themeName);
+    if (theme) {
+      setCurrentTheme(theme);
+    }
+  };
+
+  return { currentTheme, setTheme, themeVariants: themeColors };
 }
