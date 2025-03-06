@@ -28,17 +28,7 @@ const defaultState: TimerState = {
   totalBreakMinutes: 0
 };
 
-function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  return (
-    <div className={`fixed inset-0 z-50 bg-black/50 flex items-center justify-center ${open ? 'block' : 'hidden'}`}>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-lg font-bold mb-4">Help</h2>
-        <p>This is a Pomodoro timer application.  Use the controls to start, pause, and reset your work and break sessions.</p>
-        <Button onClick={onClose}>Close</Button>
-      </div>
-    </div>
-  );
-}
+import { HelpDialog } from "@/components/help-dialog";
 
 export default function Home() {
   const [settings, setSettings] = useState<Settings>(() => {
@@ -64,7 +54,7 @@ export default function Home() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [zenMode, setZenMode] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false); // Add help dialog state
+  const [helpOpen, setHelpOpen] = useState(false);
   const { currentTheme } = useTheme();
 
   // Save state and settings to localStorage
@@ -240,7 +230,7 @@ export default function Home() {
           settings={settings}
           onSave={handleSaveSettings}
         />
-        <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} /> {/*Render HelpDialog */}
+        <HelpDialog open={helpOpen} onOpenChange={setHelpOpen} />
       </div>
     </div>
   );
