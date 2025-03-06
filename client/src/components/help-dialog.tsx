@@ -78,7 +78,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                 <h4 className="font-medium text-foreground mb-2">Controls</h4>
                 <div className="space-y-3">
                   <p className="flex items-start gap-2 text-foreground">
-                    <Play className="h-5 w-5 mt-0.5 text-primary" />
+                    <PlayCircle className="h-5 w-5 mt-0.5 text-primary" />
                     <span><strong>Start/Pause</strong> — Begin or pause the timer. The button changes appearance to indicate the current state.</span>
                   </p>
                   <p className="flex items-start gap-2 text-foreground">
