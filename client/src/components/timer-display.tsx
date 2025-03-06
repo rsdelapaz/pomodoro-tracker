@@ -71,7 +71,12 @@ export function TimerDisplay({ state, totalTime }: TimerDisplayProps) {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        {state.isWorking ? 'Focus Time' : 'Break Time'}
+        {state.isWorking 
+          ? 'Focus Time' 
+          : state.breakType === "short" 
+            ? 'Short Break' 
+            : 'Long Break'
+        }
       </motion.p>
     </motion.div>
   );

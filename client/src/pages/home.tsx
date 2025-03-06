@@ -14,7 +14,9 @@ import { useTheme } from "@/lib/theme";
 const defaultSettings: Settings = {
   workMinutes: 25,
   breakMinutes: 5,
-  volume: 0.5
+  longBreakMinutes: 15,
+  volume: 0.8,
+  useNotifications: true
 };
 
 const defaultState: TimerState = {
@@ -67,7 +69,9 @@ export default function Home() {
         if (prev.timeLeft <= 0) {
           audioPlayer.playNotification();
           const newIsWorking = !prev.isWorking;
-          const timeLeft = (newIsWorking ? settings.workMinutes : settings.breakMinutes) * 60;
+          const timeLeft = newIsWorking 
+            ? settings.workMinutes * 60 
+            : (prev.breakType === "short" ? settings.breakMinutes : settings.longBreakMinutes) * 60;
 
           return {
             ...prev,
@@ -91,6 +95,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [state.isPaused, settings]);
 
+  // Request notification permission on first render
+  useEffect(() => {
+    if (settings.useNotifications && Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Update audio volume when settings change
   useEffect(() => {
     audioPlayer.setVolume(settings.volume);
@@ -104,7 +115,37 @@ export default function Home() {
     setState(prev => ({
       ...prev,
       isPaused: true,
-      timeLeft: (prev.isWorking ? settings.workMinutes : settings.breakMinutes) * 60
+      timeLeft: (prev.isWorking ? settings.workMinutes : 
+        (prev.breakType === "short" ? settings.breakMinutes : settings.longBreakMinutes)) * 60
+    }));
+  };
+  
+  const startWorkSession = () => {
+    setState(prev => ({
+      ...prev,
+      isWorking: true,
+      isPaused: false,
+      timeLeft: settings.workMinutes * 60
+    }));
+  };
+  
+  const startShortBreak = () => {
+    setState(prev => ({
+      ...prev,
+      isWorking: false,
+      isPaused: false,
+      breakType: "short",
+      timeLeft: settings.breakMinutes * 60
+    }));
+  };
+  
+  const startLongBreak = () => {
+    setState(prev => ({
+      ...prev,
+      isWorking: false,
+      isPaused: false,
+      breakType: "long",
+      timeLeft: settings.longBreakMinutes * 60
     }));
   };
 
@@ -146,6 +187,9 @@ export default function Home() {
               onPlayPause={handlePlayPause}
               onReset={handleReset}
               onOpenSettings={() => setSettingsOpen(true)}
+              onStartWork={startWorkSession}
+              onStartShortBreak={startShortBreak}
+              onStartLongBreak={startLongBreak}
             />
           </motion.div>
         </AnimatePresence>
