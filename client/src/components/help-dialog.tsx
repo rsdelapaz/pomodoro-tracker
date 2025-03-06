@@ -1,14 +1,21 @@
 
-import React from "react";
-import { Clock, PlayCircle, PauseCircle, RefreshCw, RotateCcw, Settings, Moon, Volume2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Settings,
+  RotateCcw,
+  PauseCircle,
+  PlayCircle,
+  Clock,
+  Coffee,
+  Battery,
+  HelpCircle
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface HelpDialogProps {
@@ -19,95 +26,97 @@ interface HelpDialogProps {
 export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto bg-card text-card-foreground">
+      <DialogContent className="max-w-xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <Clock className="h-5 w-5" /> Pomodoro Timer - Help Guide
+          <DialogTitle className="text-2xl font-bold text-primary">
+            How to Use the Pomodoro App
           </DialogTitle>
-          <DialogDescription>
-            Learn how to use this application effectively
+          <DialogDescription className="text-muted-foreground text-sm">
+            A simple guide to help you get started with the Pomodoro technique.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="prose prose-sm dark:prose-invert mt-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <PlayCircle className="h-5 w-5 text-primary" /> What is the Pomodoro Technique?
-          </h3>
-          <p>
-            The Pomodoro Technique is a time management method that uses a timer to break work into intervals, 
-            traditionally 25 minutes in length, separated by short breaks. These intervals are known as "pomodoros".
-          </p>
-
-          <h3 className="text-lg font-semibold mt-6 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" /> Basic Timer Controls
-          </h3>
-          <div className="pl-4 border-l-2 border-muted">
-            <p className="flex items-center gap-2">
-              <Button size="sm" variant="default" className="pointer-events-none">Start Work</Button>
-              <span>— Begin a work session (default: 25 minutes)</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Button size="sm" variant="secondary" className="pointer-events-none">Short Break</Button>
-              <span>— Take a short break (default: 5 minutes)</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Button size="sm" variant="secondary" className="pointer-events-none">Long Break</Button>
-              <span>— Take a longer break (default: 15 minutes)</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <PauseCircle className="h-5 w-5 text-muted-foreground" />
-              <span>— Pause the current timer</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <PlayCircle className="h-5 w-5 text-muted-foreground" />
-              <span>— Resume the current timer</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <RotateCcw className="h-5 w-5 text-muted-foreground" />
-              <span>— Reset the current timer</span>
+        <div className="space-y-6 py-4">
+          <div className="rounded-lg bg-card p-4 shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" /> Introducing the Pomodoro Technique
+            </h3>
+            <p className="text-muted-foreground">
+              The Pomodoro Technique is a time management method that uses alternating periods of 
+              focused work and breaks to improve productivity and reduce mental fatigue.
             </p>
           </div>
 
-          <h3 className="text-lg font-semibold mt-6 flex items-center gap-2">
-            <Settings className="h-5 w-5 text-primary" /> Customizing Your Experience
-          </h3>
-          <div className="pl-4 border-l-2 border-muted">
-            <p className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-muted-foreground" />
-              <span>— Open settings to customize durations and volume</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Volume2 className="h-5 w-5 text-muted-foreground" />
-              <span>— Adjust notification volume in settings</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Moon className="h-5 w-5 text-muted-foreground" />
-              <span>— Toggle between different theme colors</span>
-            </p>
+          <div className="rounded-lg bg-card p-4 shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" /> Timer Mode Tabs
+            </h3>
+            <div className="space-y-3 pl-4 border-l-2 border-muted">
+              <p className="flex items-center gap-2 text-foreground">
+                <Clock className="h-5 w-5 text-primary" />
+                <span><strong>Pomodoro</strong> — Work session (default: 25 minutes)</span>
+              </p>
+              <p className="flex items-center gap-2 text-foreground">
+                <Coffee className="h-5 w-5 text-secondary" />
+                <span><strong>Short Break</strong> — Brief rest (default: 5 minutes)</span>
+              </p>
+              <p className="flex items-center gap-2 text-foreground">
+                <Battery className="h-5 w-5 text-accent" />
+                <span><strong>Long Break</strong> — Extended rest (default: 15 minutes)</span>
+              </p>
+              <p className="text-muted-foreground mt-2">
+                Select any tab to switch between different timer modes. The timer will automatically 
+                update to reflect the appropriate duration.
+              </p>
+            </div>
           </div>
 
-          <h3 className="text-lg font-semibold mt-6">Best Practices</h3>
-          <ol className="list-decimal pl-5">
-            <li>Complete one Pomodoro (work session) without interruption</li>
-            <li>Take short breaks between Pomodoros to rest your mind</li>
-            <li>After 4 Pomodoros, take a longer break (15-30 minutes)</li>
-            <li>Use the timer to track your productivity throughout the day</li>
-            <li>Adjust the work/break durations to find what works best for you</li>
-          </ol>
+          <div className="rounded-lg bg-card p-4 shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center gap-2">
+              <PlayCircle className="h-5 w-5 text-primary" /> Timer Controls
+            </h3>
+            <div className="space-y-3 pl-4 border-l-2 border-muted">
+              <p className="flex items-center gap-2 text-foreground">
+                <Button size="sm" variant="default" className="pointer-events-none">
+                  <PlayCircle className="h-4 w-4 mr-1" /> Start
+                </Button>
+                <span>— Start the selected timer (changes to Pause when running)</span>
+              </p>
+              <p className="flex items-center gap-2 text-foreground">
+                <Button size="sm" variant="outline" className="pointer-events-none">
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+                <span>— Reset the current timer</span>
+              </p>
+              <p className="flex items-center gap-2 text-foreground">
+                <Button size="sm" variant="outline" className="pointer-events-none">
+                  <Settings className="h-4 w-4" />
+                </Button>
+                <span>— Customize timer durations and sound settings</span>
+              </p>
+              <p className="flex items-center gap-2 text-foreground">
+                <Button size="sm" variant="outline" className="pointer-events-none">
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+                <span>— Open this help guide</span>
+              </p>
+            </div>
+          </div>
 
-          <h3 className="text-lg font-semibold mt-6">Tips for Success</h3>
-          <ul className="list-disc pl-5">
-            <li>Find a quiet place to work with minimal distractions</li>
-            <li>Define clear tasks before starting each Pomodoro</li>
-            <li>If you finish early, use the remaining time for review or planning</li>
-            <li>During breaks, step away from your screen to rest your eyes</li>
-            <li>Use Zen Mode <span className="inline-block">(minimize icon)</span> for focused work sessions</li>
-          </ul>
+          <div className="rounded-lg bg-card p-4 shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center gap-2">
+              <Settings className="h-5 w-5 text-primary" /> Recommended Workflow
+            </h3>
+            <ol className="list-decimal pl-6 space-y-2 text-foreground">
+              <li>Select <strong>Pomodoro</strong> tab for a work session</li>
+              <li>Click the Start button and focus on your task</li>
+              <li>When the timer ends, an alarm will sound</li>
+              <li>Select <strong>Short Break</strong> tab and take a brief rest</li>
+              <li>After 4 work sessions, take a <strong>Long Break</strong></li>
+              <li>Repeat the cycle to maximize productivity</li>
+            </ol>
+          </div>
         </div>
-
-        <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Close</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

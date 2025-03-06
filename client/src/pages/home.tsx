@@ -30,6 +30,8 @@ const defaultState: TimerState = {
 
 import { HelpDialog } from "@/components/help-dialog";
 
+type ActiveTab = 'pomodoro' | 'shortBreak' | 'longBreak';
+
 export default function Home() {
   const [settings, setSettings] = useState<Settings>(() => {
     const saved = localStorage.getItem('pomodoro-settings');
@@ -55,6 +57,7 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [zenMode, setZenMode] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('pomodoro'); // Added state for active tab
   const { currentTheme } = useTheme();
 
   // Save state and settings to localStorage
@@ -72,9 +75,12 @@ export default function Home() {
         if (prev.timeLeft <= 0) {
           audioPlayer.playNotification();
           const newIsWorking = !prev.isWorking;
-          const timeLeft = newIsWorking 
-            ? settings.workMinutes * 60 
-            : (prev.breakType === "short" ? settings.breakMinutes : settings.longBreakMinutes) * 60;
+          let timeLeft;
+          if (newIsWorking) {
+            timeLeft = settings.workMinutes * 60;
+          } else {
+            timeLeft = (activeTab === "shortBreak" ? settings.breakMinutes : settings.longBreakMinutes) * 60;
+          }
 
           return {
             ...prev,
@@ -96,7 +102,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [state.isPaused, settings]);
+  }, [state.isPaused, settings, activeTab]); // Added activeTab to dependencies
 
   // Request notification permission on first render
   useEffect(() => {
@@ -119,46 +125,39 @@ export default function Home() {
       ...prev,
       isPaused: true,
       timeLeft: (prev.isWorking ? settings.workMinutes : 
-        (prev.breakType === "short" ? settings.breakMinutes : settings.longBreakMinutes)) * 60
+        (activeTab === "shortBreak" ? settings.breakMinutes : settings.longBreakMinutes)) * 60
     }));
   };
 
-  const startWorkSession = () => {
-    setState(prev => ({
-      ...prev,
-      isWorking: true,
-      isPaused: false,
-      timeLeft: settings.workMinutes * 60
-    }));
+  const handleTabChange = (tab: ActiveTab) => {
+    setActiveTab(tab);
+
+    // Only automatically start timer if user changes tab while timer is paused
+    if (state.isPaused) {
+      let newTimeLeft = settings.workMinutes * 60;
+      let isWorkingNew = true;
+
+      if (tab === 'shortBreak') {
+        newTimeLeft = settings.breakMinutes * 60;
+        isWorkingNew = false;
+      } else if (tab === 'longBreak') {
+        newTimeLeft = settings.longBreakMinutes * 60;
+        isWorkingNew = false;
+      }
+
+      setState({
+        ...state,
+        timeLeft: newTimeLeft,
+        isWorking: isWorkingNew,
+        isPaused: true // Keep timer paused when switching tabs
+      });
+    }
   };
 
-  const startShortBreak = () => {
-    setState(prev => ({
-      ...prev,
-      isWorking: false,
-      isPaused: false,
-      breakType: "short",
-      timeLeft: settings.breakMinutes * 60
-    }));
+  const handleStart = () => {
+    setState(prev => ({ ...prev, isPaused: false }));
   };
 
-  const startLongBreak = () => {
-    setState(prev => ({
-      ...prev,
-      isWorking: false,
-      isPaused: false,
-      breakType: "long",
-      timeLeft: settings.longBreakMinutes * 60
-    }));
-  };
-
-  const handleSaveSettings = (newSettings: Settings) => {
-    setSettings(newSettings);
-    setState(prev => ({
-      ...prev,
-      timeLeft: (prev.isWorking ? newSettings.workMinutes : newSettings.breakMinutes) * 60
-    }));
-  };
 
   return (
     <div className="relative min-h-screen w-full bg-background overflow-hidden">
@@ -172,6 +171,13 @@ export default function Home() {
       />
 
       <div className="relative min-h-screen w-full flex flex-col items-center justify-center gap-8 p-4">
+        <div className="flex w-full justify-center"> {/*Added Tab Container*/}
+          <div className="flex gap-4">
+            <Button onClick={() => handleTabChange('pomodoro')} className={`${activeTab === 'pomodoro' ? 'bg-blue-500 text-white' : ''}`}>Pomodoro</Button>
+            <Button onClick={() => handleTabChange('shortBreak')} className={`${activeTab === 'shortBreak' ? 'bg-blue-500 text-white' : ''}`}>Short Break</Button>
+            <Button onClick={() => handleTabChange('longBreak')} className={`${activeTab === 'longBreak' ? 'bg-blue-500 text-white' : ''}`}>Long Break</Button>
+          </div>
+        </div>
         <AnimatePresence mode="wait">
           <motion.div
             key="timer"
@@ -183,18 +189,12 @@ export default function Home() {
           >
             <TimerDisplay 
               state={state}
-              totalTime={(state.isWorking ? settings.workMinutes : settings.breakMinutes) * 60}
+              totalTime={(activeTab === 'pomodoro' ? settings.workMinutes : (activeTab === 'shortBreak' ? settings.breakMinutes : settings.longBreakMinutes)) * 60}
             />
-            <TimerControls
-              isPaused={state.isPaused}
-              onPlayPause={handlePlayPause}
-              onReset={handleReset}
-              onOpenSettings={() => setSettingsOpen(true)}
-              onStartWork={startWorkSession}
-              onStartShortBreak={startShortBreak}
-              onStartLongBreak={startLongBreak}
-              onOpenHelp={() => setHelpOpen(true)} // Pass function to open help dialog
-            />
+            <div className="flex gap-4"> {/*Simplified Controls*/}
+              <Button onClick={handleStart} className={`${state.isPaused ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'}`}> {state.isPaused ? 'Start' : 'Pause'}</Button>
+              <Button onClick={handleReset}>Reset</Button>
+            </div>
           </motion.div>
         </AnimatePresence>
 
