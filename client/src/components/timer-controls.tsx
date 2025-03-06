@@ -9,6 +9,7 @@ interface TimerControlsProps {
   onStartWork?: () => void;
   onStartShortBreak?: () => void;
   onStartLongBreak?: () => void;
+  onOpenHelp?: () => void; // Added for help button
 }
 
 export function TimerControls({ 
@@ -18,7 +19,8 @@ export function TimerControls({
   onOpenSettings, 
   onStartWork,
   onStartShortBreak,
-  onStartLongBreak
+  onStartLongBreak,
+  onOpenHelp, // Added for help button
 }: TimerControlsProps) {
   return (
     <div className="flex flex-col items-center gap-4">
@@ -42,6 +44,10 @@ export function TimerControls({
         <Button onClick={onOpenSettings} size="icon" variant="outline" className="h-12 w-12">
           <Settings2 className="h-5 w-5" />
         </Button>
+        <Button onClick={onOpenHelp} size="icon" variant="outline" className="h-12 w-12">
+          {/* Add a help icon here */}
+          Help
+        </Button> {/* Added Help button */}
       </div>
 
       {isPaused && (
@@ -52,12 +58,12 @@ export function TimerControls({
             </Button>
           )}
           {onStartShortBreak && (
-            <Button onClick={onStartShortBreak} variant="secondary" size="sm">
+            <Button onClick={onStartShortBreak} variant="secondary" size="sm" className="bg-primary/70 hover:bg-primary/90 text-primary-foreground">
               Short Break
             </Button>
           )}
           {onStartLongBreak && (
-            <Button onClick={onStartLongBreak} variant="secondary" size="sm">
+            <Button onClick={onStartLongBreak} variant="secondary" size="sm" className="bg-secondary hover:bg-secondary/80 text-secondary-foreground">
               Long Break
             </Button>
           )}
