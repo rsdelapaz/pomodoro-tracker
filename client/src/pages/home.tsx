@@ -66,43 +66,86 @@ export default function Home() {
     localStorage.setItem('pomodoro-state', JSON.stringify(state));
   }, [settings, state]);
 
+  // Retrieve zen mode state from localStorage
+  useEffect(() => {
+    const savedZenMode = localStorage.getItem('pomodoro-zen-mode');
+    if (savedZenMode !== null) {
+      setZenMode(JSON.parse(savedZenMode));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save zen mode state to localStorage whenever it changes
+    localStorage.setItem('pomodoro-zen-mode', JSON.stringify(zenMode));
+  }, [zenMode]);
+
   // Timer logic
   useEffect(() => {
     if (state.isPaused) return;
 
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setState(prev => {
-        if (prev.timeLeft <= 0) {
-          audioPlayer.playNotification();
-          const newIsWorking = !prev.isWorking;
-          let timeLeft;
-          if (newIsWorking) {
-            timeLeft = settings.workMinutes * 60;
-          } else {
-            timeLeft = (activeTab === "shortBreak" ? settings.breakMinutes : settings.longBreakMinutes) * 60;
+        if (prev.timeLeft <= 1) {
+          // Timer completed
+          clearInterval(timer);
+
+          // Play sound when timer completes
+          audioPlayer.playAlarm();
+
+          // Show browser notification if enabled
+          if (settings.useNotifications) {
+            // Request notification permission if not already granted
+            if (Notification.permission !== "granted") {
+              Notification.requestPermission();
+            }
+
+            if (Notification.permission === "granted") {
+              new Notification('Pomodoro Timer', {
+                body: prev.isWorking ? 'Work session completed! Time for a break.' : 'Break completed! Ready to focus again?',
+                icon: '/favicon.ico'
+              });
+            }
           }
 
-          return {
-            ...prev,
-            isWorking: newIsWorking,
-            timeLeft,
-            totalWorkSessions: newIsWorking ? prev.totalWorkSessions : prev.totalWorkSessions + 1,
-            totalWorkMinutes: prev.totalWorkMinutes + (prev.isWorking ? 1/60 : 0),
-            totalBreakMinutes: prev.totalBreakMinutes + (!prev.isWorking ? 1/60 : 0)
-          };
-        }
+          // Update stats
+          const newState = { ...prev, isPaused: true };
+          if (prev.isWorking) {
+            newState.totalWorkSessions = prev.totalWorkSessions + 1;
+            newState.totalWorkMinutes = prev.totalWorkMinutes + settings.workMinutes;
 
-        return {
-          ...prev,
-          timeLeft: prev.timeLeft - 1,
-          totalWorkMinutes: prev.totalWorkMinutes + (prev.isWorking ? 1/60 : 0),
-          totalBreakMinutes: prev.totalBreakMinutes + (!prev.isWorking ? 1/60 : 0)
-        };
+            // Automatically transition to Short Break after work session
+            setTimeout(() => {
+              setActiveTab('shortBreak');
+              setState(current => ({
+                ...current,
+                isWorking: false,
+                timeLeft: settings.breakMinutes * 60
+              }));
+            }, 500);
+          } else {
+            newState.totalBreakMinutes = prev.totalBreakMinutes + 
+              (activeTab === 'shortBreak' ? settings.breakMinutes : settings.longBreakMinutes);
+
+            // Automatically transition back to Pomodoro after break
+            setTimeout(() => {
+              setActiveTab('pomodoro');
+              setState(current => ({
+                ...current,
+                isWorking: true,
+                timeLeft: settings.workMinutes * 60
+              }));
+            }, 500);
+          }
+
+          return newState;
+        } else {
+          return { ...prev, timeLeft: prev.timeLeft - 1 };
+        }
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [state.isPaused, settings, activeTab]); // Added activeTab to dependencies
+    return () => clearInterval(timer);
+  }, [state.isPaused, settings, activeTab]);
 
   // Request notification permission on first render
   useEffect(() => {
@@ -182,9 +225,9 @@ export default function Home() {
       <div className="relative min-h-screen w-full flex flex-col items-center justify-center gap-8 p-4">
         <div className="flex w-full justify-center"> {/*Added Tab Container*/}
           <div className="flex gap-4">
-            <span onClick={() => handleTabChange('pomodoro')} className={`${activeTab === 'pomodoro' ? 'text-blue-500 font-bold underline' : 'text-gray-300 hover:text-gray-400'}`}>Pomodoro</span>
-            <span onClick={() => handleTabChange('shortBreak')} className={`${activeTab === 'shortBreak' ? 'text-blue-500 font-bold underline' : 'text-gray-300 hover:text-gray-400'}`}>Short Break</span>
-            <span onClick={() => handleTabChange('longBreak')} className={`${activeTab === 'longBreak' ? 'text-blue-500 font-bold underline' : 'text-gray-300 hover:text-gray-400'}`}>Long Break</span>
+            <button onClick={() => handleTabChange('pomodoro')} className={`${activeTab === 'pomodoro' ? 'bg-gray-800 text-white font-bold px-4 py-2 rounded-md shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded-md'} `}>Pomodoro</button>
+            <button onClick={() => handleTabChange('shortBreak')} className={`${activeTab === 'shortBreak' ? 'bg-gray-800 text-white font-bold px-4 py-2 rounded-md shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded-md'} `}>Short Break</button>
+            <button onClick={() => handleTabChange('longBreak')} className={`${activeTab === 'longBreak' ? 'bg-gray-800 text-white font-bold px-4 py-2 rounded-md shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded-md'} `}>Long Break</button>
           </div>
         </div>
         <AnimatePresence mode="wait">
@@ -228,23 +271,37 @@ export default function Home() {
           )}
         </AnimatePresence>
         <ThemeSelector />
-        {!zenMode && (
-          <div className="fixed top-4 right-4 flex gap-2">
-            <button
-              onClick={() => setHelpOpen(true)}
-              className="p-2 rounded-full bg-background/40 hover:bg-background/60 text-foreground/70 hover:text-foreground transition-all"
-              aria-label="Help"
-            >
-              <HelpCircle className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setZenMode(true)}
-              className="p-2 rounded-full bg-muted/80 hover:bg-muted text-foreground"
-            >
-              <Minimize2 className="h-5 w-5" />
-            </button>
-          </div>
-        )}
+        <div className={`fixed bottom-4 right-4 transition-opacity duration-200 ${zenMode ? 'opacity-100' : 'opacity-0'}`}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setZenMode(false)}
+            className="rounded-full hover:bg-primary/10 shadow-md"
+            aria-label="Show controls"
+          >
+            <Maximize2 className="h-5 w-5" />
+          </Button>
+        </div>
+        <div className={`absolute top-4 right-4 flex gap-2 transition-opacity duration-200 ${zenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setHelpOpen(true)}
+            className="rounded-full" 
+            aria-label="Help"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setZenMode(true)}
+            className="rounded-full"
+            aria-label="Hide controls"
+          >
+            <Minimize2 className="h-5 w-5" />
+          </Button>
+        </div>
         <SettingsDialog
           open={settingsOpen}
           onOpenChange={setSettingsOpen}

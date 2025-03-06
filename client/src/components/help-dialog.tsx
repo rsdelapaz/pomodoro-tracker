@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -73,7 +72,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                   The active mode is indicated by a small highlight line beneath the selected option.
                 </p>
               </div>
-              
+
               <div className="mt-6">
                 <h4 className="font-medium text-foreground mb-2">Controls</h4>
                 <div className="space-y-3">
@@ -91,7 +90,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                   </p>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <h4 className="font-medium text-foreground mb-2">The Pomodoro Technique</h4>
                 <ol className="list-decimal pl-5 space-y-2 text-foreground/90">

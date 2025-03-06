@@ -10,53 +10,26 @@ import { themeColors, useTheme } from "@/lib/theme";
 import { motion } from "framer-motion";
 
 export function ThemeSelector() {
-  const { currentTheme, setTheme } = useTheme();
+  const { currentTheme, setTheme, themeVariants } = useTheme();
+
+  const handleThemeChange = (themeName: string) => {
+    console.log('Changing theme to:', themeName);
+    setTheme(themeName);
+  };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed bottom-4 left-4 bg-background/20 backdrop-blur-sm"
-        >
-          <motion.div
-            animate={{
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          >
-            <Palette className="h-4 w-4" />
-          </motion.div>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-48">
-        {themeColors.map((theme) => (
-          <DropdownMenuItem
-            key={theme.name}
-            onClick={() => setTheme(theme)}
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <motion.div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: theme.primary }}
-              animate={{
-                scale: currentTheme.name === theme.name ? [1, 1.1, 1] : 1,
-              }}
-              transition={{
-                duration: 0.6,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            {theme.name}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex flex-wrap gap-2 mt-4">
+      {themeVariants.map((theme) => (
+        <div
+          key={theme.name}
+          className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
+            currentTheme.name === theme.name ? 'border-accent' : 'border-transparent'
+          }`}
+          style={{ backgroundColor: theme.colors.primary }}
+          onClick={() => handleThemeChange(theme.name)}
+          title={theme.name}
+        />
+      ))}
+    </div>
   );
 }
