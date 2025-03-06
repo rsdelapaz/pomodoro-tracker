@@ -129,6 +129,11 @@ export default function Home() {
     }));
   };
 
+  const handleSaveSettings = (newSettings: Settings) => {
+    setSettings(newSettings);
+    localStorage.setItem('pomodoroSettings', JSON.stringify(newSettings));
+  };
+
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
 
