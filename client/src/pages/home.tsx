@@ -5,7 +5,7 @@ import { TimerControls } from "@/components/timer-controls";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { StatsDisplay } from "@/components/stats-display";
 import { audioPlayer } from "@/lib/audio";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Minimize2, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeSelector } from "@/components/theme-selector";
@@ -178,9 +178,9 @@ export default function Home() {
       <div className="relative min-h-screen w-full flex flex-col items-center justify-center gap-8 p-4">
         <div className="flex w-full justify-center"> {/*Added Tab Container*/}
           <div className="flex gap-4">
-            <Button onClick={() => handleTabChange('pomodoro')} className={`${activeTab === 'pomodoro' ? 'bg-blue-500 text-white' : ''}`}>Pomodoro</Button>
-            <Button onClick={() => handleTabChange('shortBreak')} className={`${activeTab === 'shortBreak' ? 'bg-blue-500 text-white' : ''}`}>Short Break</Button>
-            <Button onClick={() => handleTabChange('longBreak')} className={`${activeTab === 'longBreak' ? 'bg-blue-500 text-white' : ''}`}>Long Break</Button>
+            <span onClick={() => handleTabChange('pomodoro')} className={`${activeTab === 'pomodoro' ? 'text-blue-500 font-bold underline' : 'text-gray-300 hover:text-gray-400'}`}>Pomodoro</span>
+            <span onClick={() => handleTabChange('shortBreak')} className={`${activeTab === 'shortBreak' ? 'text-blue-500 font-bold underline' : 'text-gray-300 hover:text-gray-400'}`}>Short Break</span>
+            <span onClick={() => handleTabChange('longBreak')} className={`${activeTab === 'longBreak' ? 'text-blue-500 font-bold underline' : 'text-gray-300 hover:text-gray-400'}`}>Long Break</span>
           </div>
         </div>
         <AnimatePresence mode="wait">
@@ -197,8 +197,8 @@ export default function Home() {
               totalTime={(activeTab === 'pomodoro' ? settings.workMinutes : (activeTab === 'shortBreak' ? settings.breakMinutes : settings.longBreakMinutes)) * 60}
             />
             <div className="flex gap-4"> {/*Simplified Controls*/}
-              <Button onClick={handleStart} className={`${state.isPaused ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'}`}> {state.isPaused ? 'Start' : 'Pause'}</Button>
-              <Button onClick={handleReset}>Reset</Button>
+              <Button onClick={handlePlayPause} className={`${state.isPaused ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'}`}> {state.isPaused ? 'Start' : 'Pause'}</Button>
+              <Button onClick={handleReset} className="bg-gray-600 hover:bg-gray-700 text-white">Reset</Button> {/* Reverted reset button design */}
             </div>
           </motion.div>
         </AnimatePresence>
@@ -220,15 +220,23 @@ export default function Home() {
           )}
         </AnimatePresence>
         <ThemeSelector />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed bottom-4 right-4"
-          onClick={() => setZenMode(!zenMode)}
-        >
-          {zenMode ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-        </Button>
-
+        {!zenMode && (
+          <div className="fixed top-4 right-4 flex gap-2">
+            <button
+              onClick={() => setHelpOpen(true)}
+              className="p-2 rounded-full bg-background/40 hover:bg-background/60 text-foreground/70 hover:text-foreground transition-all"
+              aria-label="Help"
+            >
+              <HelpCircle className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setZenMode(true)}
+              className="p-2 rounded-full bg-muted/80 hover:bg-muted text-foreground"
+            >
+              <Minimize2 className="h-5 w-5" />
+            </button>
+          </div>
+        )}
         <SettingsDialog
           open={settingsOpen}
           onOpenChange={setSettingsOpen}
