@@ -25,7 +25,7 @@ export function ThemeSelector() {
           className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
             currentTheme.name === theme.name ? 'border-accent' : 'border-transparent'
           }`}
-          style={{ backgroundColor: theme.colors.primary }}
+          style={{ backgroundColor: theme.primary }}
           onClick={() => handleThemeChange(theme.name)}
           title={theme.name}
         />
