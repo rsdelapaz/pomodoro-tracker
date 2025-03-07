@@ -75,37 +75,7 @@ export default function Home() {
     }
   }, []);
   
-  // Handle tab changes with proper timer reset
-  const handleTabChange = (tab: ActiveTab) => {
-    // Reset the timer state when changing tabs
-    let newTimeLeft = 0;
-    let isWorking = false;
-    
-    if (tab === 'pomodoro') {
-      newTimeLeft = settings.workMinutes * 60;
-      isWorking = true;
-    } else if (tab === 'shortBreak') {
-      newTimeLeft = settings.breakMinutes * 60;
-      isWorking = false;
-    } else if (tab === 'longBreak') {
-      newTimeLeft = settings.longBreakMinutes * 60;
-      isWorking = false;
-    }
-    
-    // Update state with new time and pause the timer
-    setState(prev => ({
-      ...prev,
-      isPaused: true,
-      isWorking: isWorking,
-      timeLeft: newTimeLeft
-    }));
-    
-    // Play a subtle sound effect to indicate tab change
-    audioPlayer.play('switch');
-    
-    // Update the active tab
-    setActiveTab(tab);
-  };
+  // This function is defined again later with more functionality, so removing this duplicate
 
   useEffect(() => {
     // Save zen mode state to localStorage whenever it changes
@@ -215,28 +185,36 @@ export default function Home() {
   };
 
   const handleTabChange = (tab: ActiveTab) => {
-    setActiveTab(tab);
-
-    // Only automatically start timer if user changes tab while timer is paused
-    if (state.isPaused) {
-      let newTimeLeft = settings.workMinutes * 60;
-      let isWorkingNew = true;
-
-      if (tab === 'shortBreak') {
-        newTimeLeft = settings.breakMinutes * 60;
-        isWorkingNew = false;
-      } else if (tab === 'longBreak') {
-        newTimeLeft = settings.longBreakMinutes * 60;
-        isWorkingNew = false;
-      }
-
-      setState({
-        ...state,
-        timeLeft: newTimeLeft,
-        isWorking: isWorkingNew,
-        isPaused: true // Keep timer paused when switching tabs
-      });
+    // Reset the timer state when changing tabs
+    let newTimeLeft = 0;
+    let isWorkingNew = false;
+    
+    if (tab === 'pomodoro') {
+      newTimeLeft = settings.workMinutes * 60;
+      isWorkingNew = true;
+    } else if (tab === 'shortBreak') {
+      newTimeLeft = settings.breakMinutes * 60;
+      isWorkingNew = false;
+    } else if (tab === 'longBreak') {
+      newTimeLeft = settings.longBreakMinutes * 60;
+      isWorkingNew = false;
     }
+    
+    // Always reset timer when changing tabs
+    setState(prev => ({
+      ...prev,
+      isPaused: true, // Always pause when switching tabs
+      isWorking: isWorkingNew,
+      timeLeft: newTimeLeft
+    }));
+    
+    // Play a subtle sound effect to indicate tab change
+    if (audioPlayer && audioPlayer.play) {
+      audioPlayer.play('switch');
+    }
+    
+    // Update the active tab
+    setActiveTab(tab);
   };
 
   const handleStart = () => {
