@@ -8,8 +8,6 @@ interface TimerDisplayProps {
   totalTime: number;
 }
 
-import { formatTime } from "@/lib/utils";
-
 export function TimerDisplay({ state, totalTime }: TimerDisplayProps) {
   const minutes = Math.floor(state.timeLeft / 60);
   const seconds = state.timeLeft % 60;
