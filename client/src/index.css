@@ -36,7 +36,23 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+  }
+}
+
+/* Enhanced timer display styling */
+@layer components {
+  .timer-glow {
+    filter: drop-shadow(0 0 10px rgba(var(--primary), 0.5));
+  }
+
+  .timer-display {
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Smooth zoom transitions */
+  .zen-transition {
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 

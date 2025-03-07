@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeSelector } from "@/components/theme-selector";
 import { useTheme } from "@/lib/theme";
+import { HelpDialog } from "@/components/help-dialog";
+import { TimerTabs } from "@/components/timer-tabs";
 
 const defaultSettings: Settings = {
   workMinutes: 25,
@@ -27,9 +29,6 @@ const defaultState: TimerState = {
   totalWorkMinutes: 0,
   totalBreakMinutes: 0
 };
-
-import { HelpDialog } from "@/components/help-dialog";
-import { TimerTabs } from "@/components/timer-tabs";
 
 type ActiveTab = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -249,6 +248,7 @@ export default function Home() {
             <TimerDisplay 
               state={state}
               totalTime={(activeTab === 'pomodoro' ? settings.workMinutes : (activeTab === 'shortBreak' ? settings.breakMinutes : settings.longBreakMinutes)) * 60}
+              zenMode={zenMode}
             />
             <TimerControls 
               isPaused={state.isPaused}
@@ -290,7 +290,7 @@ export default function Home() {
           </Button>
         </div>
         <div className={`absolute top-4 right-4 flex gap-2 transition-opacity duration-200 ${zenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-
+          <ThemeSelector />
           <Button 
             variant="ghost" 
             size="icon" 
