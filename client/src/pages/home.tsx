@@ -29,6 +29,7 @@ const defaultState: TimerState = {
 };
 
 import { HelpDialog } from "@/components/help-dialog";
+import { TimerTabs } from "@/components/timer-tabs";
 
 type ActiveTab = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -57,7 +58,7 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [zenMode, setZenMode] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('pomodoro'); // Added state for active tab
+  const [activeTab, setActiveTab] = useState<ActiveTab>('pomodoro');
   const { currentTheme } = useTheme();
 
   // Save state and settings to localStorage
@@ -73,6 +74,38 @@ export default function Home() {
       setZenMode(JSON.parse(savedZenMode));
     }
   }, []);
+  
+  // Handle tab changes with proper timer reset
+  const handleTabChange = (tab: ActiveTab) => {
+    // Reset the timer state when changing tabs
+    let newTimeLeft = 0;
+    let isWorking = false;
+    
+    if (tab === 'pomodoro') {
+      newTimeLeft = settings.workMinutes * 60;
+      isWorking = true;
+    } else if (tab === 'shortBreak') {
+      newTimeLeft = settings.breakMinutes * 60;
+      isWorking = false;
+    } else if (tab === 'longBreak') {
+      newTimeLeft = settings.longBreakMinutes * 60;
+      isWorking = false;
+    }
+    
+    // Update state with new time and pause the timer
+    setState(prev => ({
+      ...prev,
+      isPaused: true,
+      isWorking: isWorking,
+      timeLeft: newTimeLeft
+    }));
+    
+    // Play a subtle sound effect to indicate tab change
+    audioPlayer.play('switch');
+    
+    // Update the active tab
+    setActiveTab(tab);
+  };
 
   useEffect(() => {
     // Save zen mode state to localStorage whenever it changes
@@ -223,12 +256,8 @@ export default function Home() {
       />
 
       <div className="relative min-h-screen w-full flex flex-col items-center justify-center gap-8 p-4">
-        <div className="flex w-full justify-center"> {/*Added Tab Container*/}
-          <div className="flex gap-4">
-            <button onClick={() => handleTabChange('pomodoro')} className={`${activeTab === 'pomodoro' ? 'bg-gray-800 text-white font-bold px-4 py-2 rounded-md shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded-md'} `}>Pomodoro</button>
-            <button onClick={() => handleTabChange('shortBreak')} className={`${activeTab === 'shortBreak' ? 'bg-gray-800 text-white font-bold px-4 py-2 rounded-md shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded-md'} `}>Short Break</button>
-            <button onClick={() => handleTabChange('longBreak')} className={`${activeTab === 'longBreak' ? 'bg-gray-800 text-white font-bold px-4 py-2 rounded-md shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded-md'} `}>Long Break</button>
-          </div>
+        <div className="flex w-full justify-center">
+          <TimerTabs activeTab={activeTab} onTabChange={handleTabChange} />
         </div>
         <AnimatePresence mode="wait">
           <motion.div
