@@ -5,7 +5,7 @@ import { TimerControls } from "@/components/timer-controls";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { StatsDisplay } from "@/components/stats-display";
 import { audioPlayer } from "@/lib/audio";
-import { Maximize2, Minimize2, HelpCircle } from "lucide-react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeSelector } from "@/components/theme-selector";
@@ -74,7 +74,7 @@ export default function Home() {
       setZenMode(JSON.parse(savedZenMode));
     }
   }, []);
-  
+
   // This function is defined again later with more functionality, so removing this duplicate
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function Home() {
           clearInterval(timer);
 
           // Play sound when timer completes
-          audioPlayer.playAlarm();
+          audioPlayer.playNotification();
 
           // Show browser notification if enabled
           if (settings.useNotifications) {
@@ -188,7 +188,7 @@ export default function Home() {
     // Reset the timer state when changing tabs
     let newTimeLeft = 0;
     let isWorkingNew = false;
-    
+
     if (tab === 'pomodoro') {
       newTimeLeft = settings.workMinutes * 60;
       isWorkingNew = true;
@@ -199,7 +199,7 @@ export default function Home() {
       newTimeLeft = settings.longBreakMinutes * 60;
       isWorkingNew = false;
     }
-    
+
     // Always reset timer when changing tabs
     setState(prev => ({
       ...prev,
@@ -207,12 +207,12 @@ export default function Home() {
       isWorking: isWorkingNew,
       timeLeft: newTimeLeft
     }));
-    
+
     // Play a subtle sound effect to indicate tab change
     if (audioPlayer && audioPlayer.play) {
       audioPlayer.play('switch');
     }
-    
+
     // Update the active tab
     setActiveTab(tab);
   };
@@ -256,7 +256,7 @@ export default function Home() {
               onPause={handleTimerPause}
               onReset={handleReset}
               onSettingsClick={() => setSettingsOpen(true)}
-              onHelpClick={() => setHelpOpen(true)}
+              
             />
           </motion.div>
         </AnimatePresence>
@@ -290,15 +290,7 @@ export default function Home() {
           </Button>
         </div>
         <div className={`absolute top-4 right-4 flex gap-2 transition-opacity duration-200 ${zenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setHelpOpen(true)}
-            className="rounded-full" 
-            aria-label="Help"
-          >
-            <HelpCircle className="h-5 w-5" />
-          </Button>
+
           <Button 
             variant="ghost" 
             size="icon" 
